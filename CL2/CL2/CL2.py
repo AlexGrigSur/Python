@@ -160,6 +160,6 @@ def lin2():
         Лексемы = {', '.join([l[0] for l in p.lexeme])}
     """)
         print(par)
-#ex11
-lin2()
+ex1()
+#lin2()
 

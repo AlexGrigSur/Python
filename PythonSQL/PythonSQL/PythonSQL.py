@@ -1,5 +1,5 @@
 import sqlite3
-import xml.etree as tree
+from lxml import etree
 
 def executeCommand(str):
     connection = getconnection()
@@ -30,15 +30,13 @@ def printsCities():
     return len(rows)
 
 
-def printCabinets():
-    #("SELECT * FROM buildings_addr")
-    rows = executeReader("SELECT cities.city from buildings join cities on cities.id=buildings.city_id")#("SELECT city, building_name, building_address FROM buildings JOIN cities ON buildings.city_id = cities.id")
+def printBuildings():
+    rows = executeReader("SELECT cities.city, building_name, building_address FROM buildings JOIN cities ON buildings.city_id = cities.id")
     for row in rows:
         print(row)
     return len(rows)
 
 def printCabinets():
-    #("SELECT * FROM buildings")
     rows = executeReader("SELECT buildings.building_name, cabinets.cabinet_cab, cabinets.cabinet_floor FROM cabinets JOIN buildings ON cabinets.building_id = buildings.id")
     for row in rows:
         print(row)
@@ -83,27 +81,64 @@ def DropAll():
     executeCommand("Drop table buildings")
     executeCommand("Drop table cabinets")
 
-
 def ClearAll():
     executeCommand("Delete from cabinets")
     executeCommand("Delete from buildings")
     executeCommand("Delete from cities")
 
+def unload_table():    
+    rows = gettable('cabinets')
+    root = etree.Element("Cabinets")#doc.createElement('goods')
+    #root.append(etree.Element()) #doc.appendChild(root)
+    for row in rows:
+        #product = #doc.createElement('good')
+        building = etree.Element('Buildings') #
+
+        cabNumb = etree.SubElement(building,'text')#doc.createElement('name')
+        cabNumb.text = f'{row[1]}'
+        #cabNumb = etree.SubElement(text)#appendChild(text)
+        #product.appendChild(name)
+        cabFloor = etree.SubElement(building,'text')
+        cabFloor.text = f'{row[2]}'  
+
+    doc = etree.ElementTree(building)
+    outFile = open('Res.xml','w')
+    doc.write(outFile)
+    # запись в файл
+    #xml_str = doc.toprettyxml(indent="  ")
+    #with open("goods.xml", "w") as f:
+    #    f.write(xml_str)
+
+#def load_table():
+#    doc = minidom.parse("goods.xml")
+#    con = getconnection()
+#    cur = con.cursor()
+
+#    product = doc.getElementsByTagName("good")
+#    for prod in product:
+#        name = prod.getElementsByTagName("name")[0]
+#        number = prod.getElementsByTagName("number")[0]
+#        coast = prod.getElementsByTagName("coast")[0]
+#        date = prod.getElementsByTagName("date_come")[0]
+
+#        # print(name.firstChild.data, number.firstChild.data, coast.firstChild.data, date.firstChild.data)
+#        addGood(name.firstChild.data, number.firstChild.data, coast.firstChild.data, date.firstChild.data)
+#    con.commit()
 if __name__ == '__main__':
     connection = sqlite3.connect('buildings.db')
     cursor = connection.cursor()
 
     DropAll()
     initializationTables()
-    #ClearAll()
 
     AddCity('Краснодар')
-    addBuilding(0,"КубГУ","Ставропольская 149")
-    addCabinet(0,100,0)
-    addCabinet(0,200,0)
+    addBuilding(1,"КубГУ","Ставропольская 149")
+    addCabinet(1,100,0)
+    addCabinet(1,200,0)
 
     printsCities()
     print("________________________")
-    printCabinets()
+    printBuildings()
     print("________________________")
     printCabinets()
+    unload_table()
